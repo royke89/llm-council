@@ -106,6 +106,14 @@ Useful flags: `--include "src/**/*.py"`, `--exclude "*.test.js"`,
 > (`council-review.bat`) placed on your `PATH`; it runs this project's
 > environment while reviewing whatever folder you invoke it from.
 
+### In the web app
+
+You can also run a review from the browser UI: click **📁 Review Project** in
+the sidebar, enter a folder path and (optionally) a question, click **Preview**
+to see the files and estimated cost, then **Run review**. The review appears as
+a normal conversation with the usual stage tabs, and the markdown report is
+still saved to `<folder>/council-reviews/`.
+
 ## Tech Stack
 
 - **Backend:** FastAPI (Python 3.10+), async httpx, OpenRouter API

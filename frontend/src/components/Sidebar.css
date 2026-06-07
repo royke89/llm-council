@@ -36,6 +36,24 @@
   border-color: #357abd;
 }
 
+.review-project-btn {
+  width: 100%;
+  padding: 10px;
+  margin-top: 8px;
+  background: #fff;
+  border: 1px solid #4a90e2;
+  border-radius: 6px;
+  color: #4a90e2;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background 0.2s;
+  font-weight: 500;
+}
+
+.review-project-btn:hover {
+  background: #e8f0fe;
+}
+
 .conversation-list {
   flex: 1;
   overflow-y: auto;

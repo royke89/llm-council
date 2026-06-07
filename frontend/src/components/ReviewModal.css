@@ -1,0 +1,129 @@
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal {
+  background: #fff;
+  border-radius: 10px;
+  padding: 24px;
+  width: 520px;
+  max-width: 92vw;
+  max-height: 88vh;
+  overflow-y: auto;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+}
+
+.modal h2 {
+  margin: 0 0 16px 0;
+  font-size: 20px;
+  color: #333;
+}
+
+.modal label {
+  display: block;
+  font-size: 13px;
+  color: #555;
+  margin: 12px 0 4px 0;
+  font-weight: 500;
+}
+
+.modal input[type='text'],
+.modal input[type='number'],
+.modal textarea {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 8px 10px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 14px;
+  font-family: inherit;
+}
+
+.modal .link-btn {
+  background: none;
+  border: none;
+  color: #4a90e2;
+  cursor: pointer;
+  font-size: 13px;
+  padding: 8px 0;
+}
+
+.modal .advanced {
+  border-top: 1px solid #eee;
+  margin-top: 8px;
+  padding-top: 4px;
+}
+
+.modal-error {
+  margin-top: 12px;
+  padding: 10px;
+  background: #fdecea;
+  color: #b3261e;
+  border-radius: 6px;
+  font-size: 13px;
+}
+
+.modal-preview {
+  margin-top: 12px;
+  padding: 10px;
+  background: #f5f8ff;
+  border: 1px solid #d6e4ff;
+  border-radius: 6px;
+  font-size: 13px;
+  color: #333;
+}
+
+.modal-preview .preview-files {
+  margin-top: 8px;
+  max-height: 160px;
+  overflow-y: auto;
+  font-family: monospace;
+  font-size: 12px;
+  color: #555;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 20px;
+}
+
+.modal-actions button {
+  padding: 9px 16px;
+  border-radius: 6px;
+  font-size: 14px;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.btn-secondary {
+  background: #fff;
+  border: 1px solid #ccc;
+  color: #333;
+}
+
+.btn-secondary:hover:not(:disabled) {
+  background: #f2f2f2;
+}
+
+.btn-primary {
+  background: #4a90e2;
+  border: 1px solid #4a90e2;
+  color: #fff;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background: #357abd;
+}
+
+.modal-actions button:disabled {
+  opacity: 0.6;
+  cursor: default;
+}

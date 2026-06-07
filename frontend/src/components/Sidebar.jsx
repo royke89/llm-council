@@ -6,6 +6,7 @@ export default function Sidebar({
   currentConversationId,
   onSelectConversation,
   onNewConversation,
+  onReviewProject,
 }) {
   return (
     <div className="sidebar">
@@ -13,6 +14,9 @@ export default function Sidebar({
         <h1>LLM Council</h1>
         <button className="new-conversation-btn" onClick={onNewConversation}>
           + New Conversation
+        </button>
+        <button className="review-project-btn" onClick={onReviewProject}>
+          📁 Review Project
         </button>
       </div>
 
