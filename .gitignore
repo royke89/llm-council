@@ -24,4 +24,3 @@ frontend/.vite/
 *.log
 *.pid
 council-reviews/
-Start LLM Council.bat

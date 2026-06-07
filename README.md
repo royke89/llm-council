@@ -16,6 +16,26 @@ This project was 99% vibe coded as a fun Saturday hack because I wanted to explo
 
 ## Setup
 
+### Quick setup (Windows, recommended)
+
+On a fresh machine, after cloning this repo:
+
+1. Make sure **Python 3.10+** and **Node.js** are installed.
+2. Double-click **`setup.bat`** (or run `powershell -ExecutionPolicy Bypass -File setup.ps1`).
+   It installs all backend + frontend dependencies, registers the
+   `council-review` command on your PATH, creates an **LLM Council** desktop
+   shortcut, and scaffolds the `.env` file.
+3. Paste your OpenRouter API key into the `.env` file it created
+   (get one at [openrouter.ai/keys](https://openrouter.ai/keys)).
+
+That's it — double-click the **LLM Council** desktop icon to launch the web app,
+or run `council-review --ask "..."` inside any project.
+
+> The API key is intentionally **not** committed to git (it's a secret), so it's
+> the one thing you add once per machine.
+
+The manual steps below are the equivalent of what `setup` does automatically.
+
 ### 1. Install Dependencies
 
 The project uses [uv](https://docs.astral.sh/uv/) for project management.
