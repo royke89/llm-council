@@ -8,8 +8,12 @@ from typing import List, Dict, Any
 import uuid
 import json
 import asyncio
+import os
+from datetime import datetime
 
 from . import storage
+from . import review as review_mod
+from .config import COUNCIL_MODELS
 from .council import run_full_council, generate_conversation_title, stage1_collect_responses, stage2_collect_rankings, stage3_synthesize_final, calculate_aggregate_rankings
 
 app = FastAPI(title="LLM Council API")
@@ -191,6 +195,135 @@ async def send_message_stream(conversation_id: str, request: SendMessageRequest)
             "Cache-Control": "no-cache",
             "Connection": "keep-alive",
         }
+    )
+
+
+class ReviewPreviewRequest(BaseModel):
+    """Request to preview which files a project review would send."""
+    path: str
+    include: List[str] = []
+    exclude: List[str] = []
+    max_bytes: int = 200000
+    max_file_bytes: int = 100000
+    base_dir: str | None = None
+
+
+class ReviewStreamRequest(ReviewPreviewRequest):
+    """Request to run a project review (streamed)."""
+    question: str = ""
+
+
+@app.post("/api/review/preview")
+async def review_preview(req: ReviewPreviewRequest):
+    """Return the files, size, and cost estimate for a prospective review."""
+    target = review_mod.resolve_target(req.path, req.base_dir)
+    if not os.path.isdir(target):
+        return {"error": f"Not a directory: {target}"}
+    collected = review_mod.collect_files(
+        target,
+        include_globs=req.include or None,
+        exclude_globs=req.exclude,
+        max_bytes=req.max_bytes,
+        max_file_bytes=req.max_file_bytes,
+    )
+    prompt = review_mod.build_review_prompt(review_mod.DEFAULT_QUESTION, collected)
+    tokens = review_mod.estimate_tokens(prompt)
+    est_cost = round(tokens * len(COUNCIL_MODELS) / 1_000_000 * 10.0, 2)
+    return {
+        "target": target,
+        "file_count": len(collected.included),
+        "files": [rel for rel, _ in collected.included],
+        "total_bytes": collected.total_bytes,
+        "skipped_count": len(collected.skipped),
+        "est_tokens": tokens,
+        "est_cost": est_cost,
+    }
+
+
+@app.post("/api/conversations/{conversation_id}/review/stream")
+async def review_stream(conversation_id: str, req: ReviewStreamRequest):
+    """Build a prompt from a project's files and stream the council review."""
+    conversation = storage.get_conversation(conversation_id)
+    if conversation is None:
+        raise HTTPException(status_code=404, detail="Conversation not found")
+
+    question = req.question.strip() or review_mod.DEFAULT_QUESTION
+    target = review_mod.resolve_target(req.path, req.base_dir)
+    is_first_message = len(conversation["messages"]) == 0
+
+    async def event_generator():
+        try:
+            if not os.path.isdir(target):
+                yield f"data: {json.dumps({'type': 'error', 'message': f'Not a directory: {target}'})}\n\n"
+                return
+
+            collected = review_mod.collect_files(
+                target,
+                include_globs=req.include or None,
+                exclude_globs=req.exclude,
+                max_bytes=req.max_bytes,
+                max_file_bytes=req.max_file_bytes,
+            )
+            if not collected.included:
+                yield f"data: {json.dumps({'type': 'error', 'message': f'No matching files under {target}'})}\n\n"
+                return
+
+            full_prompt = review_mod.build_review_prompt(question, collected)
+            kb = collected.total_bytes / 1024
+            summary = (
+                f"\U0001f4c1 Project review: {target}\n\n"
+                f"**Request:** {question}\n\n"
+                f"_{len(collected.included)} files, {kb:.1f} KB_"
+            )
+            storage.add_user_message(conversation_id, summary)
+
+            title_task = None
+            if is_first_message:
+                title_task = asyncio.create_task(generate_conversation_title(question))
+
+            yield f"data: {json.dumps({'type': 'stage1_start'})}\n\n"
+            stage1_results = await stage1_collect_responses(full_prompt)
+            yield f"data: {json.dumps({'type': 'stage1_complete', 'data': stage1_results})}\n\n"
+
+            yield f"data: {json.dumps({'type': 'stage2_start'})}\n\n"
+            stage2_results, label_to_model = await stage2_collect_rankings(full_prompt, stage1_results)
+            aggregate_rankings = calculate_aggregate_rankings(stage2_results, label_to_model)
+            yield f"data: {json.dumps({'type': 'stage2_complete', 'data': stage2_results, 'metadata': {'label_to_model': label_to_model, 'aggregate_rankings': aggregate_rankings}})}\n\n"
+
+            yield f"data: {json.dumps({'type': 'stage3_start'})}\n\n"
+            stage3_result = await stage3_synthesize_final(full_prompt, stage1_results, stage2_results)
+            yield f"data: {json.dumps({'type': 'stage3_complete', 'data': stage3_result})}\n\n"
+
+            if title_task:
+                title = await title_task
+                storage.update_conversation_title(conversation_id, title)
+                yield f"data: {json.dumps({'type': 'title_complete', 'data': {'title': title}})}\n\n"
+
+            storage.add_assistant_message(
+                conversation_id, stage1_results, stage2_results, stage3_result
+            )
+
+            report_path = None
+            try:
+                timestamp = datetime.now().strftime("%Y%m%d-%H%M%S")
+                report = review_mod.write_report(
+                    os.path.join(target, "council-reviews"),
+                    question, collected.included,
+                    stage1_results, stage2_results, stage3_result, timestamp,
+                )
+                report_path = str(report)
+            except Exception:
+                report_path = None
+
+            yield f"data: {json.dumps({'type': 'complete', 'report_path': report_path})}\n\n"
+
+        except Exception as e:
+            yield f"data: {json.dumps({'type': 'error', 'message': str(e)})}\n\n"
+
+    return StreamingResponse(
+        event_generator(),
+        media_type="text/event-stream",
+        headers={"Cache-Control": "no-cache", "Connection": "keep-alive"},
     )
 
 
