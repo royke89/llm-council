@@ -79,6 +79,33 @@ npm run dev
 
 Then open http://localhost:5173 in your browser.
 
+## Reviewing your own projects (`council-review`)
+
+Besides the web app, you can point the council at the files of **any** local
+project and get an analysis with concrete suggestions, saved as a markdown
+report.
+
+```bash
+council-review [folder] --ask "your question"
+```
+
+- `folder` defaults to the current directory, so from inside a project you can
+  just run `council-review --ask "review for bugs"`.
+- It auto-includes source/text files and skips `node_modules`, `.git`,
+  build output, binaries, and large files, with a total size cap
+  (`--max-bytes`, default ~200 KB).
+- Before making any paid API calls it shows the files, token estimate, and a
+  rough cost, then asks for confirmation (`--yes` to skip).
+- The full report (every model's take + the chairman's synthesis) is saved to
+  `<folder>/council-reviews/REVIEW-<timestamp>.md`.
+
+Useful flags: `--include "src/**/*.py"`, `--exclude "*.test.js"`,
+`--max-bytes`, `--out`, `--yes`.
+
+> Setup note: the `council-review` command is provided by a small launcher
+> (`council-review.bat`) placed on your `PATH`; it runs this project's
+> environment while reviewing whatever folder you invoke it from.
+
 ## Tech Stack
 
 - **Backend:** FastAPI (Python 3.10+), async httpx, OpenRouter API
