@@ -8,6 +8,7 @@ export default function ReviewModal({ onRun, onClose, isRunning }) {
   const [include, setInclude] = useState('');
   const [exclude, setExclude] = useState('');
   const [maxKB, setMaxKB] = useState(200);
+  const [simple, setSimple] = useState(false);
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [preview, setPreview] = useState(null);
   const [error, setError] = useState('');
@@ -19,6 +20,7 @@ export default function ReviewModal({ onRun, onClose, isRunning }) {
     include: include.split(',').map((s) => s.trim()).filter(Boolean),
     exclude: exclude.split(',').map((s) => s.trim()).filter(Boolean),
     max_bytes: Math.round(Number(maxKB) * 1024) || 200000,
+    simple,
   });
 
   const handlePreview = async () => {
@@ -68,6 +70,15 @@ export default function ReviewModal({ onRun, onClose, isRunning }) {
           rows={2}
           placeholder="Default: a general code review"
         />
+
+        <label className="checkbox-row">
+          <input
+            type="checkbox"
+            checked={simple}
+            onChange={(e) => setSimple(e.target.checked)}
+          />
+          Explain simply (short, non-technical answer)
+        </label>
 
         <button
           type="button"

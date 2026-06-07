@@ -45,6 +45,22 @@
   font-family: inherit;
 }
 
+.modal .checkbox-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 14px;
+  font-size: 13px;
+  color: #333;
+  font-weight: 400;
+  cursor: pointer;
+}
+
+.modal .checkbox-row input {
+  width: auto;
+  cursor: pointer;
+}
+
 .modal .link-btn {
   background: none;
   border: none;

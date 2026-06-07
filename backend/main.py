@@ -206,6 +206,7 @@ class ReviewPreviewRequest(BaseModel):
     max_bytes: int = 200000
     max_file_bytes: int = 100000
     base_dir: str | None = None
+    simple: bool = False
 
 
 class ReviewStreamRequest(ReviewPreviewRequest):
@@ -226,7 +227,7 @@ async def review_preview(req: ReviewPreviewRequest):
         max_bytes=req.max_bytes,
         max_file_bytes=req.max_file_bytes,
     )
-    prompt = review_mod.build_review_prompt(review_mod.DEFAULT_QUESTION, collected)
+    prompt = review_mod.build_review_prompt(review_mod.DEFAULT_QUESTION, collected, simple=req.simple)
     tokens = review_mod.estimate_tokens(prompt)
     est_cost = round(tokens * len(COUNCIL_MODELS) / 1_000_000 * 10.0, 2)
     return {
@@ -268,7 +269,7 @@ async def review_stream(conversation_id: str, req: ReviewStreamRequest):
                 yield f"data: {json.dumps({'type': 'error', 'message': f'No matching files under {target}'})}\n\n"
                 return
 
-            full_prompt = review_mod.build_review_prompt(question, collected)
+            full_prompt = review_mod.build_review_prompt(question, collected, simple=req.simple)
             kb = collected.total_bytes / 1024
             summary = (
                 f"\U0001f4c1 Project review: {target}\n\n"

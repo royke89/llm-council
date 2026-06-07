@@ -119,14 +119,27 @@ RESPONSE_FORMAT_GUIDANCE = (
 )
 
 
-def build_review_prompt(question: str, collected: CollectionResult) -> str:
+SIMPLE_RESPONSE_FORMAT_GUIDANCE = (
+    "RESPONSE FORMAT (important): The reader is NOT technical. Keep the whole "
+    "answer short and free of jargon. Use only two sections:\n"
+    "1. **In plain English** — 2-3 short sentences: what this project is, its "
+    "overall state, and whether it's safe/ready to use.\n"
+    "2. **What to do next** — a short numbered list of the most important "
+    "actions in priority order, each one plain sentence.\n"
+    "Do NOT add a technical-details section. Avoid jargon entirely. Be brief."
+)
+
+
+def build_review_prompt(question: str, collected: CollectionResult,
+                        simple: bool = False) -> str:
+    guidance = SIMPLE_RESPONSE_FORMAT_GUIDANCE if simple else RESPONSE_FORMAT_GUIDANCE
     lines = [
         "You are a panel of expert software reviewers.",
         "Review the project files below and answer the request.",
         "",
         f"REQUEST: {question}",
         "",
-        RESPONSE_FORMAT_GUIDANCE,
+        guidance,
         "",
         "FILE TREE:",
     ]
@@ -190,6 +203,8 @@ def parse_args(argv=None):
                    help="Report output dir (default: <path>/council-reviews).")
     p.add_argument("--yes", "-y", action="store_true",
                    help="Skip the confirmation prompt.")
+    p.add_argument("--simple", action="store_true",
+                   help="Briefer, non-technical answer (no technical section).")
     p.add_argument("--base-dir", default=None,
                    help="Directory to resolve relative paths against "
                         "(set by the launcher to the caller's CWD).")
@@ -240,7 +255,7 @@ def main(argv=None) -> int:
 
     from .council import run_full_council
 
-    prompt = build_review_prompt(args.ask, collected)
+    prompt = build_review_prompt(args.ask, collected, simple=args.simple)
     tokens = estimate_tokens(prompt)
     print(f"Reviewing: {target}")
     print(f"Question:  {args.ask}")

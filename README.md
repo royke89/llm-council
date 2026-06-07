@@ -120,7 +120,7 @@ council-review [folder] --ask "your question"
   `<folder>/council-reviews/REVIEW-<timestamp>.md`.
 
 Useful flags: `--include "src/**/*.py"`, `--exclude "*.test.js"`,
-`--max-bytes`, `--out`, `--yes`.
+`--max-bytes`, `--out`, `--yes`, `--simple` (briefer, non-technical answer).
 
 > Setup note: the `council-review` command is provided by a small launcher
 > (`council-review.bat`) placed on your `PATH`; it runs this project's
@@ -132,7 +132,8 @@ You can also run a review from the browser UI: click **📁 Review Project** in
 the sidebar, enter a folder path and (optionally) a question, click **Preview**
 to see the files and estimated cost, then **Run review**. The review appears as
 a normal conversation with the usual stage tabs, and the markdown report is
-still saved to `<folder>/council-reviews/`.
+still saved to `<folder>/council-reviews/`. Tick **Explain simply** for a short,
+non-technical answer.
 
 ## Tech Stack
 

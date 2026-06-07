@@ -71,6 +71,16 @@ def test_build_prompt_includes_plain_language_guidance():
     prompt = build_review_prompt("find bugs", collected)
     assert "In plain English" in prompt
     assert "What to do next" in prompt
+    assert "Technical details" in prompt
+
+
+def test_simple_mode_is_briefer_and_drops_technical_section():
+    collected = CollectionResult(included=[("a.py", "x")], total_bytes=1)
+    prompt = build_review_prompt("find bugs", collected, simple=True)
+    assert "In plain English" in prompt
+    assert "What to do next" in prompt
+    assert "only two sections" in prompt
+    assert "3. **Technical details**" not in prompt
 
 
 def test_estimate_tokens_roughly_chars_over_four():
@@ -99,6 +109,11 @@ def test_parse_args_defaults():
     assert args.ask == DEFAULT_QUESTION
     assert args.max_bytes == 200_000
     assert args.yes is False
+    assert args.simple is False
+
+
+def test_parse_args_simple_flag():
+    assert parse_args(["--simple"]).simple is True
 
 
 def test_resolve_target_relative_to_base(tmp_path):
