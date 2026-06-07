@@ -5,6 +5,7 @@ import argparse
 import asyncio
 import fnmatch
 import os
+import sys
 from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
@@ -186,7 +187,17 @@ def resolve_target(path: str, base_dir):
     return str(target.resolve())
 
 
+def _force_utf8_stdout() -> None:
+    """Avoid UnicodeEncodeError when models return emoji on non-UTF-8 consoles."""
+    for stream in (sys.stdout, sys.stderr):
+        try:
+            stream.reconfigure(encoding="utf-8", errors="replace")
+        except Exception:
+            pass
+
+
 def main(argv=None) -> int:
+    _force_utf8_stdout()
     args = parse_args(argv)
     target = resolve_target(args.path, args.base_dir)
     if not Path(target).is_dir():
