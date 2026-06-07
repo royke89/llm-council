@@ -66,6 +66,13 @@ def test_build_prompt_contains_question_and_files():
     assert "print(1)" in prompt
 
 
+def test_build_prompt_includes_plain_language_guidance():
+    collected = CollectionResult(included=[("a.py", "x")], total_bytes=1)
+    prompt = build_review_prompt("find bugs", collected)
+    assert "In plain English" in prompt
+    assert "What to do next" in prompt
+
+
 def test_estimate_tokens_roughly_chars_over_four():
     assert estimate_tokens("x" * 400) == 100
     assert estimate_tokens("") >= 1

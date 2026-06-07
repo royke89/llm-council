@@ -104,12 +104,29 @@ def collect_files(root, include_globs=None, exclude_globs=None,
     return result
 
 
+RESPONSE_FORMAT_GUIDANCE = (
+    "RESPONSE FORMAT (important): Write so a non-technical person can follow it. "
+    "Structure your answer in three sections:\n"
+    "1. **In plain English** — 2-4 short sentences with no jargon: what this "
+    "project does (if you can tell), its overall state, and whether it looks "
+    "safe/ready to use.\n"
+    "2. **What to do next** — a numbered list of the most important actions in "
+    "priority order. Each item is one plain sentence (a brief 'why' is fine). "
+    "Avoid jargon here.\n"
+    "3. **Technical details** — the deeper analysis for those who want it; "
+    "technical terms are fine in this section only.\n"
+    "Keep it concise."
+)
+
+
 def build_review_prompt(question: str, collected: CollectionResult) -> str:
     lines = [
         "You are a panel of expert software reviewers.",
         "Review the project files below and answer the request.",
         "",
         f"REQUEST: {question}",
+        "",
+        RESPONSE_FORMAT_GUIDANCE,
         "",
         "FILE TREE:",
     ]
