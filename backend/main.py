@@ -207,6 +207,7 @@ class ReviewPreviewRequest(BaseModel):
     max_file_bytes: int = 100000
     base_dir: str | None = None
     simple: bool = False
+    claude: str | None = None
 
 
 class ReviewStreamRequest(ReviewPreviewRequest):
@@ -282,12 +283,18 @@ async def review_stream(conversation_id: str, req: ReviewStreamRequest):
             if is_first_message:
                 title_task = asyncio.create_task(generate_conversation_title(question))
 
+            council_models = list(COUNCIL_MODELS)
+            if req.claude and req.claude in review_mod.CLAUDE_CHOICES:
+                chosen = review_mod.CLAUDE_CHOICES[req.claude]
+                council_models = [chosen if m.startswith("anthropic/") else m
+                                  for m in council_models]
+
             yield f"data: {json.dumps({'type': 'stage1_start'})}\n\n"
-            stage1_results = await stage1_collect_responses(full_prompt)
+            stage1_results = await stage1_collect_responses(full_prompt, council_models)
             yield f"data: {json.dumps({'type': 'stage1_complete', 'data': stage1_results})}\n\n"
 
             yield f"data: {json.dumps({'type': 'stage2_start'})}\n\n"
-            stage2_results, label_to_model = await stage2_collect_rankings(full_prompt, stage1_results)
+            stage2_results, label_to_model = await stage2_collect_rankings(full_prompt, stage1_results, council_models)
             aggregate_rankings = calculate_aggregate_rankings(stage2_results, label_to_model)
             yield f"data: {json.dumps({'type': 'stage2_complete', 'data': stage2_results, 'metadata': {'label_to_model': label_to_model, 'aggregate_rankings': aggregate_rankings}})}\n\n"
 

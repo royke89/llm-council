@@ -9,6 +9,7 @@ export default function ReviewModal({ onRun, onClose, isRunning }) {
   const [exclude, setExclude] = useState('');
   const [maxKB, setMaxKB] = useState(200);
   const [simple, setSimple] = useState(false);
+  const [claude, setClaude] = useState('sonnet-4.6');
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [preview, setPreview] = useState(null);
   const [error, setError] = useState('');
@@ -21,6 +22,7 @@ export default function ReviewModal({ onRun, onClose, isRunning }) {
     exclude: exclude.split(',').map((s) => s.trim()).filter(Boolean),
     max_bytes: Math.round(Number(maxKB) * 1024) || 200000,
     simple,
+    claude,
   });
 
   const handlePreview = async () => {
@@ -70,6 +72,14 @@ export default function ReviewModal({ onRun, onClose, isRunning }) {
           rows={2}
           placeholder="Default: a general code review"
         />
+
+        <label>Claude model (choose per job)</label>
+        <select value={claude} onChange={(e) => setClaude(e.target.value)}>
+          <option value="sonnet-4.6">Claude Sonnet 4.6 — value (default)</option>
+          <option value="opus-4.6">Claude Opus 4.6</option>
+          <option value="opus-4.7">Claude Opus 4.7</option>
+          <option value="opus-4.8">Claude Opus 4.8 — best</option>
+        </select>
 
         <label className="checkbox-row">
           <input

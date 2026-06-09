@@ -120,8 +120,12 @@ def test_parse_args_claude_choice():
     from backend.review import CLAUDE_CHOICES
     assert parse_args([]).claude is None
     assert parse_args(["--claude", "opus"]).claude == "opus"
+    assert parse_args(["--claude", "opus-4.7"]).claude == "opus-4.7"
     assert CLAUDE_CHOICES["opus"] == "anthropic/claude-opus-4.8"
     assert CLAUDE_CHOICES["sonnet"] == "anthropic/claude-sonnet-4.6"
+    assert CLAUDE_CHOICES["opus-4.6"] == "anthropic/claude-opus-4.6"
+    assert CLAUDE_CHOICES["opus-4.7"] == "anthropic/claude-opus-4.7"
+    assert CLAUDE_CHOICES["opus-4.8"] == "anthropic/claude-opus-4.8"
 
 
 def test_resolve_target_relative_to_base(tmp_path):

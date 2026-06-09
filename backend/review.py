@@ -36,10 +36,14 @@ DEFAULT_QUESTION = (
     "covering bugs, design, security, and maintainability."
 )
 
-# Selectable Claude council members (via the --claude flag).
+# Selectable Claude council members (via the --claude flag / web picker).
 CLAUDE_CHOICES = {
-    "opus": "anthropic/claude-opus-4.8",
     "sonnet": "anthropic/claude-sonnet-4.6",
+    "sonnet-4.6": "anthropic/claude-sonnet-4.6",
+    "opus": "anthropic/claude-opus-4.8",
+    "opus-4.6": "anthropic/claude-opus-4.6",
+    "opus-4.7": "anthropic/claude-opus-4.7",
+    "opus-4.8": "anthropic/claude-opus-4.8",
 }
 
 
@@ -211,9 +215,9 @@ def parse_args(argv=None):
                    help="Skip the confirmation prompt.")
     p.add_argument("--simple", action="store_true",
                    help="Briefer, non-technical answer (no technical section).")
-    p.add_argument("--claude", choices=list(CLAUDE_CHOICES),
-                   help="Claude council member: 'opus' (4.8, best) or "
-                        "'sonnet' (4.6, value). Default: sonnet.")
+    p.add_argument("--claude", choices=list(CLAUDE_CHOICES), metavar="MODEL",
+                   help="Claude council member: sonnet (4.6, value/default), "
+                        "opus (=4.8, best), opus-4.6, opus-4.7, opus-4.8.")
     p.add_argument("--base-dir", default=None,
                    help="Directory to resolve relative paths against "
                         "(set by the launcher to the caller's CWD).")
