@@ -61,6 +61,14 @@ GROK_CHOICES = {
     "grok-4.20": "x-ai/grok-4.20",
 }
 
+# Chairman (final synthesizer) options — can be any provider.
+CHAIRMAN_CHOICES = {
+    "gemini-3.1-pro": "google/gemini-3.1-pro-preview",
+    "gpt-5.5": "openai/gpt-5.5",
+    "opus-4.8": "anthropic/claude-opus-4.8",
+    "grok-4.3": "x-ai/grok-4.3",
+}
+
 # Per-seat metadata: friendly choices, env var (CLI path), provider prefix
 # (used to swap the right entry in the council list for the web path).
 SEATS = {
@@ -248,6 +256,9 @@ def parse_args(argv=None):
                         "opus-4.6, opus-4.7, opus-4.8.")
     p.add_argument("--grok", choices=list(GROK_CHOICES), metavar="MODEL",
                    help="xAI seat: " + ", ".join(GROK_CHOICES) + ".")
+    p.add_argument("--chairman", choices=list(CHAIRMAN_CHOICES), metavar="MODEL",
+                   help="Final synthesizer: " + ", ".join(CHAIRMAN_CHOICES)
+                        + " (default: gemini-3.1-pro).")
     p.add_argument("--base-dir", default=None,
                    help="Directory to resolve relative paths against "
                         "(set by the launcher to the caller's CWD).")
@@ -279,12 +290,14 @@ def main(argv=None) -> int:
                       "claude": args.claude, "grok": args.grok}.items():
         if key:
             os.environ[SEATS[seat]["env"]] = SEATS[seat]["choices"][key]
+    if args.chairman:
+        os.environ["COUNCIL_CHAIRMAN_MODEL"] = CHAIRMAN_CHOICES[args.chairman]
     target = resolve_target(args.path, args.base_dir)
     if not Path(target).is_dir():
         print(f"Error: not a directory: {target}")
         return 1
 
-    from .config import OPENROUTER_API_KEY, COUNCIL_MODELS
+    from .config import OPENROUTER_API_KEY, COUNCIL_MODELS, CHAIRMAN_MODEL
     if not OPENROUTER_API_KEY:
         print("Error: OPENROUTER_API_KEY is empty. Add it to the .env file "
               "in the llm-council folder.")
@@ -315,6 +328,7 @@ def main(argv=None) -> int:
         print(f"Skipped {len(collected.skipped)} file(s) "
               f"(binary / too large / excluded / over budget).")
     print(f"Council: {', '.join(COUNCIL_MODELS)}")
+    print(f"Chairman: {CHAIRMAN_MODEL}")
     print(f"Estimated input: ~{tokens} tokens sent to each of "
           f"{len(COUNCIL_MODELS)} council members.")
     # Coarse ballpark: blended ~$10 per 1M input tokens across premium models,

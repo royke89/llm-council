@@ -13,6 +13,7 @@ export default function ReviewModal({ onRun, onClose, isRunning }) {
   const [gemini, setGemini] = useState('gemini-3.1-pro');
   const [claude, setClaude] = useState('sonnet-4.6');
   const [grok, setGrok] = useState('grok-4.3');
+  const [chairman, setChairman] = useState('gemini-3.1-pro');
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [preview, setPreview] = useState(null);
   const [error, setError] = useState('');
@@ -29,6 +30,7 @@ export default function ReviewModal({ onRun, onClose, isRunning }) {
     gemini,
     claude,
     grok,
+    chairman,
   });
 
   const handlePreview = async () => {
@@ -102,6 +104,14 @@ export default function ReviewModal({ onRun, onClose, isRunning }) {
             <option value="grok-4.20">Grok 4.20</option>
           </select>
         </div>
+
+        <label>Chairman — final synthesis</label>
+        <select value={chairman} onChange={(e) => setChairman(e.target.value)}>
+          <option value="gemini-3.1-pro">Gemini 3.1 Pro (default)</option>
+          <option value="gpt-5.5">GPT-5.5</option>
+          <option value="opus-4.8">Claude Opus 4.8</option>
+          <option value="grok-4.3">Grok 4.3</option>
+        </select>
 
         <label className="checkbox-row">
           <input

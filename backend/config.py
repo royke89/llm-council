@@ -18,8 +18,8 @@ GROK_MODEL = os.getenv("COUNCIL_GROK_MODEL", "x-ai/grok-4.3")
 # Council members - list of OpenRouter model identifiers
 COUNCIL_MODELS = [GPT_MODEL, GEMINI_MODEL, CLAUDE_MODEL, GROK_MODEL]
 
-# Chairman model - synthesizes final response
-CHAIRMAN_MODEL = "google/gemini-3.1-pro-preview"
+# Chairman model - synthesizes final response (overridable per run)
+CHAIRMAN_MODEL = os.getenv("COUNCIL_CHAIRMAN_MODEL", "google/gemini-3.1-pro-preview")
 
 # OpenRouter API endpoint
 OPENROUTER_API_URL = "https://openrouter.ai/api/v1/chat/completions"

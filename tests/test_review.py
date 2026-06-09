@@ -139,6 +139,14 @@ def test_seats_metadata_consistent():
         assert all(v.startswith(meta["prefix"]) for v in meta["choices"].values())
 
 
+def test_parse_args_chairman_choice():
+    from backend.review import CHAIRMAN_CHOICES
+    assert parse_args([]).chairman is None
+    assert parse_args(["--chairman", "opus-4.8"]).chairman == "opus-4.8"
+    assert CHAIRMAN_CHOICES["opus-4.8"] == "anthropic/claude-opus-4.8"
+    assert CHAIRMAN_CHOICES["gemini-3.1-pro"] == "google/gemini-3.1-pro-preview"
+
+
 def test_resolve_target_relative_to_base(tmp_path):
     sub = tmp_path / "proj"
     sub.mkdir()

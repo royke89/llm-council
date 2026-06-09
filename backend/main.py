@@ -211,6 +211,7 @@ class ReviewPreviewRequest(BaseModel):
     gemini: str | None = None
     claude: str | None = None
     grok: str | None = None
+    chairman: str | None = None
 
 
 class ReviewStreamRequest(ReviewPreviewRequest):
@@ -305,8 +306,12 @@ async def review_stream(conversation_id: str, req: ReviewStreamRequest):
             aggregate_rankings = calculate_aggregate_rankings(stage2_results, label_to_model)
             yield f"data: {json.dumps({'type': 'stage2_complete', 'data': stage2_results, 'metadata': {'label_to_model': label_to_model, 'aggregate_rankings': aggregate_rankings}})}\n\n"
 
+            chairman_model = None
+            if req.chairman and req.chairman in review_mod.CHAIRMAN_CHOICES:
+                chairman_model = review_mod.CHAIRMAN_CHOICES[req.chairman]
+
             yield f"data: {json.dumps({'type': 'stage3_start'})}\n\n"
-            stage3_result = await stage3_synthesize_final(full_prompt, stage1_results, stage2_results)
+            stage3_result = await stage3_synthesize_final(full_prompt, stage1_results, stage2_results, chairman_model)
             yield f"data: {json.dumps({'type': 'stage3_complete', 'data': stage3_result})}\n\n"
 
             if title_task:
