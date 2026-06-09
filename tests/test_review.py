@@ -116,6 +116,14 @@ def test_parse_args_simple_flag():
     assert parse_args(["--simple"]).simple is True
 
 
+def test_parse_args_claude_choice():
+    from backend.review import CLAUDE_CHOICES
+    assert parse_args([]).claude is None
+    assert parse_args(["--claude", "opus"]).claude == "opus"
+    assert CLAUDE_CHOICES["opus"] == "anthropic/claude-opus-4.8"
+    assert CLAUDE_CHOICES["sonnet"] == "anthropic/claude-sonnet-4.6"
+
+
 def test_resolve_target_relative_to_base(tmp_path):
     sub = tmp_path / "proj"
     sub.mkdir()

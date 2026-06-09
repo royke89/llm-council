@@ -120,7 +120,8 @@ council-review [folder] --ask "your question"
   `<folder>/council-reviews/REVIEW-<timestamp>.md`.
 
 Useful flags: `--include "src/**/*.py"`, `--exclude "*.test.js"`,
-`--max-bytes`, `--out`, `--yes`, `--simple` (briefer, non-technical answer).
+`--max-bytes`, `--out`, `--yes`, `--simple` (briefer, non-technical answer),
+`--claude opus|sonnet` (Claude member: Opus 4.8 = best, Sonnet 4.6 = value/default).
 
 > Setup note: the `council-review` command is provided by a small launcher
 > (`council-review.bat`) placed on your `PATH`; it runs this project's
