@@ -33,6 +33,12 @@
   font-weight: 500;
 }
 
+.modal .model-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
 .modal select {
   width: 100%;
   box-sizing: border-box;

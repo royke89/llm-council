@@ -36,7 +36,18 @@ DEFAULT_QUESTION = (
     "covering bugs, design, security, and maintainability."
 )
 
-# Selectable Claude council members (via the --claude flag / web picker).
+# Selectable models per council seat (friendly key -> OpenRouter model id).
+# Used by the --gpt/--gemini/--claude/--grok flags and the web dropdowns.
+GPT_CHOICES = {
+    "gpt-5.1": "openai/gpt-5.1",
+    "gpt-5.2": "openai/gpt-5.2",
+    "gpt-5.5": "openai/gpt-5.5",
+    "gpt-5.5-pro": "openai/gpt-5.5-pro",
+}
+GEMINI_CHOICES = {
+    "gemini-3.1-pro": "google/gemini-3.1-pro-preview",
+    "gemini-3.5-flash": "google/gemini-3.5-flash",
+}
 CLAUDE_CHOICES = {
     "sonnet": "anthropic/claude-sonnet-4.6",
     "sonnet-4.6": "anthropic/claude-sonnet-4.6",
@@ -44,6 +55,19 @@ CLAUDE_CHOICES = {
     "opus-4.6": "anthropic/claude-opus-4.6",
     "opus-4.7": "anthropic/claude-opus-4.7",
     "opus-4.8": "anthropic/claude-opus-4.8",
+}
+GROK_CHOICES = {
+    "grok-4.3": "x-ai/grok-4.3",
+    "grok-4.20": "x-ai/grok-4.20",
+}
+
+# Per-seat metadata: friendly choices, env var (CLI path), provider prefix
+# (used to swap the right entry in the council list for the web path).
+SEATS = {
+    "gpt": {"choices": GPT_CHOICES, "env": "COUNCIL_GPT_MODEL", "prefix": "openai/"},
+    "gemini": {"choices": GEMINI_CHOICES, "env": "COUNCIL_GEMINI_MODEL", "prefix": "google/"},
+    "claude": {"choices": CLAUDE_CHOICES, "env": "COUNCIL_CLAUDE_MODEL", "prefix": "anthropic/"},
+    "grok": {"choices": GROK_CHOICES, "env": "COUNCIL_GROK_MODEL", "prefix": "x-ai/"},
 }
 
 
@@ -215,9 +239,15 @@ def parse_args(argv=None):
                    help="Skip the confirmation prompt.")
     p.add_argument("--simple", action="store_true",
                    help="Briefer, non-technical answer (no technical section).")
+    p.add_argument("--gpt", choices=list(GPT_CHOICES), metavar="MODEL",
+                   help="OpenAI seat: " + ", ".join(GPT_CHOICES) + ".")
+    p.add_argument("--gemini", choices=list(GEMINI_CHOICES), metavar="MODEL",
+                   help="Google seat: " + ", ".join(GEMINI_CHOICES) + ".")
     p.add_argument("--claude", choices=list(CLAUDE_CHOICES), metavar="MODEL",
-                   help="Claude council member: sonnet (4.6, value/default), "
-                        "opus (=4.8, best), opus-4.6, opus-4.7, opus-4.8.")
+                   help="Claude seat: sonnet (4.6, value/default), opus (=4.8), "
+                        "opus-4.6, opus-4.7, opus-4.8.")
+    p.add_argument("--grok", choices=list(GROK_CHOICES), metavar="MODEL",
+                   help="xAI seat: " + ", ".join(GROK_CHOICES) + ".")
     p.add_argument("--base-dir", default=None,
                    help="Directory to resolve relative paths against "
                         "(set by the launcher to the caller's CWD).")
@@ -244,9 +274,11 @@ def _force_utf8_stdout() -> None:
 def main(argv=None) -> int:
     _force_utf8_stdout()
     args = parse_args(argv)
-    # Must be set before config is imported below so it picks up the choice.
-    if args.claude:
-        os.environ["COUNCIL_CLAUDE_MODEL"] = CLAUDE_CHOICES[args.claude]
+    # Must be set before config is imported below so it picks up the choices.
+    for seat, key in {"gpt": args.gpt, "gemini": args.gemini,
+                      "claude": args.claude, "grok": args.grok}.items():
+        if key:
+            os.environ[SEATS[seat]["env"]] = SEATS[seat]["choices"][key]
     target = resolve_target(args.path, args.base_dir)
     if not Path(target).is_dir():
         print(f"Error: not a directory: {target}")

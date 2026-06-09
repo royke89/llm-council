@@ -121,7 +121,8 @@ council-review [folder] --ask "your question"
 
 Useful flags: `--include "src/**/*.py"`, `--exclude "*.test.js"`,
 `--max-bytes`, `--out`, `--yes`, `--simple` (briefer, non-technical answer),
-`--claude MODEL` (Claude member: `sonnet`/`sonnet-4.6` = value/default, `opus`/`opus-4.8` = best, also `opus-4.6`, `opus-4.7`).
+and per-seat model flags `--gpt`, `--gemini`, `--claude`, `--grok` (e.g.
+`--claude opus-4.8 --gpt gpt-5.5`). Run `council-review -h` to see each seat's options.
 
 > Setup note: the `council-review` command is provided by a small launcher
 > (`council-review.bat`) placed on your `PATH`; it runs this project's
@@ -133,9 +134,9 @@ You can also run a review from the browser UI: click **📁 Review Project** in
 the sidebar, enter a folder path and (optionally) a question, click **Preview**
 to see the files and estimated cost, then **Run review**. The review appears as
 a normal conversation with the usual stage tabs, and the markdown report is
-still saved to `<folder>/council-reviews/`. Pick the **Claude model** (Sonnet 4.6
-or Opus 4.6/4.7/4.8) from the dropdown to match the job, and tick **Explain
-simply** for a short, non-technical answer.
+still saved to `<folder>/council-reviews/`. Under **Council models** you can pick
+each seat (GPT, Gemini, Claude, Grok) from a dropdown to match the job, and tick
+**Explain simply** for a short, non-technical answer.
 
 ## Tech Stack
 

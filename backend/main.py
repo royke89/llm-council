@@ -207,7 +207,10 @@ class ReviewPreviewRequest(BaseModel):
     max_file_bytes: int = 100000
     base_dir: str | None = None
     simple: bool = False
+    gpt: str | None = None
+    gemini: str | None = None
     claude: str | None = None
+    grok: str | None = None
 
 
 class ReviewStreamRequest(ReviewPreviewRequest):
@@ -284,10 +287,14 @@ async def review_stream(conversation_id: str, req: ReviewStreamRequest):
                 title_task = asyncio.create_task(generate_conversation_title(question))
 
             council_models = list(COUNCIL_MODELS)
-            if req.claude and req.claude in review_mod.CLAUDE_CHOICES:
-                chosen = review_mod.CLAUDE_CHOICES[req.claude]
-                council_models = [chosen if m.startswith("anthropic/") else m
-                                  for m in council_models]
+            seat_choices = {"gpt": req.gpt, "gemini": req.gemini,
+                            "claude": req.claude, "grok": req.grok}
+            for seat, key in seat_choices.items():
+                meta = review_mod.SEATS[seat]
+                if key and key in meta["choices"]:
+                    chosen = meta["choices"][key]
+                    council_models = [chosen if m.startswith(meta["prefix"]) else m
+                                      for m in council_models]
 
             yield f"data: {json.dumps({'type': 'stage1_start'})}\n\n"
             stage1_results = await stage1_collect_responses(full_prompt, council_models)

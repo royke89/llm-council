@@ -116,16 +116,27 @@ def test_parse_args_simple_flag():
     assert parse_args(["--simple"]).simple is True
 
 
-def test_parse_args_claude_choice():
-    from backend.review import CLAUDE_CHOICES
+def test_parse_args_model_choices():
+    from backend.review import CLAUDE_CHOICES, GPT_CHOICES, GEMINI_CHOICES, GROK_CHOICES
     assert parse_args([]).claude is None
-    assert parse_args(["--claude", "opus"]).claude == "opus"
-    assert parse_args(["--claude", "opus-4.7"]).claude == "opus-4.7"
-    assert CLAUDE_CHOICES["opus"] == "anthropic/claude-opus-4.8"
-    assert CLAUDE_CHOICES["sonnet"] == "anthropic/claude-sonnet-4.6"
-    assert CLAUDE_CHOICES["opus-4.6"] == "anthropic/claude-opus-4.6"
+    args = parse_args(["--claude", "opus-4.7", "--gpt", "gpt-5.5",
+                       "--gemini", "gemini-3.5-flash", "--grok", "grok-4.20"])
+    assert args.claude == "opus-4.7"
+    assert args.gpt == "gpt-5.5"
+    assert args.gemini == "gemini-3.5-flash"
+    assert args.grok == "grok-4.20"
     assert CLAUDE_CHOICES["opus-4.7"] == "anthropic/claude-opus-4.7"
-    assert CLAUDE_CHOICES["opus-4.8"] == "anthropic/claude-opus-4.8"
+    assert GPT_CHOICES["gpt-5.5"] == "openai/gpt-5.5"
+    assert GEMINI_CHOICES["gemini-3.5-flash"] == "google/gemini-3.5-flash"
+    assert GROK_CHOICES["grok-4.20"] == "x-ai/grok-4.20"
+
+
+def test_seats_metadata_consistent():
+    from backend.review import SEATS
+    assert set(SEATS) == {"gpt", "gemini", "claude", "grok"}
+    for meta in SEATS.values():
+        assert meta["env"].startswith("COUNCIL_")
+        assert all(v.startswith(meta["prefix"]) for v in meta["choices"].values())
 
 
 def test_resolve_target_relative_to_base(tmp_path):

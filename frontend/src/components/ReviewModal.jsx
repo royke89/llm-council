@@ -9,7 +9,10 @@ export default function ReviewModal({ onRun, onClose, isRunning }) {
   const [exclude, setExclude] = useState('');
   const [maxKB, setMaxKB] = useState(200);
   const [simple, setSimple] = useState(false);
+  const [gpt, setGpt] = useState('gpt-5.1');
+  const [gemini, setGemini] = useState('gemini-3.1-pro');
   const [claude, setClaude] = useState('sonnet-4.6');
+  const [grok, setGrok] = useState('grok-4.3');
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [preview, setPreview] = useState(null);
   const [error, setError] = useState('');
@@ -22,7 +25,10 @@ export default function ReviewModal({ onRun, onClose, isRunning }) {
     exclude: exclude.split(',').map((s) => s.trim()).filter(Boolean),
     max_bytes: Math.round(Number(maxKB) * 1024) || 200000,
     simple,
+    gpt,
+    gemini,
     claude,
+    grok,
   });
 
   const handlePreview = async () => {
@@ -73,13 +79,29 @@ export default function ReviewModal({ onRun, onClose, isRunning }) {
           placeholder="Default: a general code review"
         />
 
-        <label>Claude model (choose per job)</label>
-        <select value={claude} onChange={(e) => setClaude(e.target.value)}>
-          <option value="sonnet-4.6">Claude Sonnet 4.6 — value (default)</option>
-          <option value="opus-4.6">Claude Opus 4.6</option>
-          <option value="opus-4.7">Claude Opus 4.7</option>
-          <option value="opus-4.8">Claude Opus 4.8 — best</option>
-        </select>
+        <label>Council models (choose per job)</label>
+        <div className="model-grid">
+          <select value={gpt} onChange={(e) => setGpt(e.target.value)}>
+            <option value="gpt-5.1">GPT-5.1 (default)</option>
+            <option value="gpt-5.2">GPT-5.2</option>
+            <option value="gpt-5.5">GPT-5.5</option>
+            <option value="gpt-5.5-pro">GPT-5.5 Pro — best</option>
+          </select>
+          <select value={gemini} onChange={(e) => setGemini(e.target.value)}>
+            <option value="gemini-3.1-pro">Gemini 3.1 Pro (default)</option>
+            <option value="gemini-3.5-flash">Gemini 3.5 Flash — value</option>
+          </select>
+          <select value={claude} onChange={(e) => setClaude(e.target.value)}>
+            <option value="sonnet-4.6">Claude Sonnet 4.6 (default)</option>
+            <option value="opus-4.6">Claude Opus 4.6</option>
+            <option value="opus-4.7">Claude Opus 4.7</option>
+            <option value="opus-4.8">Claude Opus 4.8 — best</option>
+          </select>
+          <select value={grok} onChange={(e) => setGrok(e.target.value)}>
+            <option value="grok-4.3">Grok 4.3 (default)</option>
+            <option value="grok-4.20">Grok 4.20</option>
+          </select>
+        </div>
 
         <label className="checkbox-row">
           <input

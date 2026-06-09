@@ -8,17 +8,15 @@ load_dotenv()
 # OpenRouter API key
 OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
 
-# Claude council member. Overridable per run via the COUNCIL_CLAUDE_MODEL env
-# var (the council-review CLI sets this from its --claude flag).
+# Each council seat is overridable per run via an env var (the council-review
+# CLI sets these from its --gpt/--gemini/--claude/--grok flags).
+GPT_MODEL = os.getenv("COUNCIL_GPT_MODEL", "openai/gpt-5.1")
+GEMINI_MODEL = os.getenv("COUNCIL_GEMINI_MODEL", "google/gemini-3.1-pro-preview")
 CLAUDE_MODEL = os.getenv("COUNCIL_CLAUDE_MODEL", "anthropic/claude-sonnet-4.6")
+GROK_MODEL = os.getenv("COUNCIL_GROK_MODEL", "x-ai/grok-4.3")
 
 # Council members - list of OpenRouter model identifiers
-COUNCIL_MODELS = [
-    "openai/gpt-5.1",
-    "google/gemini-3.1-pro-preview",
-    CLAUDE_MODEL,
-    "x-ai/grok-4.3",
-]
+COUNCIL_MODELS = [GPT_MODEL, GEMINI_MODEL, CLAUDE_MODEL, GROK_MODEL]
 
 # Chairman model - synthesizes final response
 CHAIRMAN_MODEL = "google/gemini-3.1-pro-preview"
